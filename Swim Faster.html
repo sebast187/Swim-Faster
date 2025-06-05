@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Swim Faster! Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;700&display=swap');
+
+        :root {
+            --primary-teal: #008080;
+            --secondary-blue: #00A0B0;
+            --accent-coral: #FF6B6B;
+            --light-sand: #F0E68C;
+            --text-light: #f0f8ff;
+            --text-dark: #004D4D;
+            --shadow-color: rgba(0, 50, 50, 0.3);
+            --error-color: #ffdddd;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            padding: 15px;
+            background: linear-gradient(180deg, var(--secondary-blue) 0%, var(--primary-teal) 70%, #006060 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            animation-name: rise;
+            animation-timing-function: ease-in;
+            animation-iteration-count: infinite;
+            bottom: -50px;
+            opacity: 0;
+            /* Define default sway values, can be overridden */
+            --horizontal-sway: 10px;
+            --horizontal-sway-end: -15px;
+        }
+
+        /* Bubble variations */
+        .bubble:nth-child(1) { width: 20px; height: 20px; left: 10%; animation-duration: 12s; animation-delay: 0s; --horizontal-sway: 15px; --horizontal-sway-end: -5px;}
+        .bubble:nth-child(2) { width: 15px; height: 15px; left: 20%; animation-duration: 8s; animation-delay: 1.5s; --horizontal-sway: -10px; --horizontal-sway-end: 20px;}
+        .bubble:nth-child(3) { width: 25px; height: 25px; left: 30%; animation-duration: 15s; animation-delay: 3s; --horizontal-sway: 5px; --horizontal-sway-end: 10px;}
+        .bubble:nth-child(4) { width: 10px; height: 10px; left: 40%; animation-duration: 7s; animation-delay: 0.5s; --horizontal-sway: 20px; --horizontal-sway-end: -15px;}
+        .bubble:nth-child(5) { width: 30px; height: 30px; left: 50%; animation-duration: 10s; animation-delay: 2.5s; --horizontal-sway: -15px; --horizontal-sway-end: 5px;}
+        .bubble:nth-child(6) { width: 18px; height: 18px; left: 60%; animation-duration: 13s; animation-delay: 4s; --horizontal-sway: 10px; --horizontal-sway-end: -20px;}
+        .bubble:nth-child(7) { width: 22px; height: 22px; left: 70%; animation-duration: 9s; animation-delay: 1s; --horizontal-sway: -5px; --horizontal-sway-end: 15px;}
+        .bubble:nth-child(8) { width: 12px; height: 12px; left: 80%; animation-duration: 6s; animation-delay: 2s; --horizontal-sway: 25px; --horizontal-sway-end: -10px;}
+        .bubble:nth-child(9) { width: 28px; height: 28px; left: 90%; animation-duration: 14s; animation-delay: 3.5s; --horizontal-sway: -20px; --horizontal-sway-end: 10px;}
+        .bubble:nth-child(10) { width: 16px; height: 16px; left: 5%; animation-duration: 11s; animation-delay: 0.8s; --horizontal-sway: 8px; --horizontal-sway-end: -12px;}
+        .bubble:nth-child(11) { width: 23px; height: 23px; left: 15%; animation-duration: 9.5s; animation-delay: 2.2s; --horizontal-sway: -12px; --horizontal-sway-end: 18px;}
+        .bubble:nth-child(12) { width: 13px; height: 13px; left: 25%; animation-duration: 7.5s; animation-delay: 1.2s; --horizontal-sway: 12px; --horizontal-sway-end: -8px;}
+        .bubble:nth-child(13) { width: 20px; height: 20px; left: 35%; animation-duration: 12.5s; animation-delay: 3.8s; --horizontal-sway: -8px; --horizontal-sway-end: 12px;}
+        .bubble:nth-child(14) { width: 26px; height: 26px; left: 45%; animation-duration: 10.5s; animation-delay: 0.2s; --horizontal-sway: 18px; --horizontal-sway-end: -18px;}
+        .bubble:nth-child(15) { width: 17px; height: 17px; left: 55%; animation-duration: 8.5s; animation-delay: 1.8s; --horizontal-sway: -18px; --horizontal-sway-end: 8px;}
+        .bubble:nth-child(16) { width: 21px; height: 21px; left: 65%; animation-duration: 13.5s; animation-delay: 4.2s; --horizontal-sway: 11px; --horizontal-sway-end: -11px;}
+        .bubble:nth-child(17) { width: 11px; height: 11px; left: 75%; animation-duration: 6.5s; animation-delay: 2.8s; --horizontal-sway: -11px; --horizontal-sway-end: 22px;}
+        .bubble:nth-child(18) { width: 29px; height: 29px; left: 85%; animation-duration: 14.5s; animation-delay: 0.6s; --horizontal-sway: 22px; --horizontal-sway-end: -2px;}
+        .bubble:nth-child(19) { width: 14px; height: 14px; left: 8%; animation-duration: 10s; animation-delay: 5s; --horizontal-sway: -2px; --horizontal-sway-end: 13px;}
+        .bubble:nth-child(20) { width: 24px; height: 24px; left: 18%; animation-duration: 16s; animation-delay: 6s; --horizontal-sway: 13px; --horizontal-sway-end: -17px;}
+        .bubble:nth-child(21) { width: 19px; height: 19px; left: 28%; animation-duration: 11s; animation-delay: 4.5s; --horizontal-sway: -17px; --horizontal-sway-end: 7px;}
+        .bubble:nth-child(22) { width: 27px; height: 27px; left: 38%; animation-duration: 13s; animation-delay: 5.5s; --horizontal-sway: 7px; --horizontal-sway-end: -14px;}
+        .bubble:nth-child(23) { width: 9px; height: 9px; left: 48%; animation-duration: 8s; animation-delay: 3.2s; --horizontal-sway: -14px; --horizontal-sway-end: 19px;}
+        .bubble:nth-child(24) { width: 31px; height: 31px; left: 58%; animation-duration: 12s; animation-delay: 6.5s; --horizontal-sway: 19px; --horizontal-sway-end: -9px;}
+        .bubble:nth-child(25) { width: 17px; height: 17px; left: 68%; animation-duration: 9s; animation-delay: 4.8s; --horizontal-sway: -9px; --horizontal-sway-end: 16px;}
+        .bubble:nth-child(26) { width: 22px; height: 22px; left: 78%; animation-duration: 14s; animation-delay: 5.2s; --horizontal-sway: 16px; --horizontal-sway-end: -6px;}
+        .bubble:nth-child(27) { width: 15px; height: 15px; left: 88%; animation-duration: 7s; animation-delay: 3.6s; --horizontal-sway: -6px; --horizontal-sway-end: 21px;}
+        .bubble:nth-child(28) { width: 26px; height: 26px; left: 3%; animation-duration: 15s; animation-delay: 6.8s; --horizontal-sway: 21px; --horizontal-sway-end: -1px;}
+        .bubble:nth-child(29) { width: 12px; height: 12px; left: 95%; animation-duration: 9.5s; animation-delay: 5.8s; --horizontal-sway: -1px; --horizontal-sway-end: 17px;}
+        .bubble:nth-child(30) { width: 20px; height: 20px; left: 52%; animation-duration: 11.5s; animation-delay: 4.1s; --horizontal-sway: 17px; --horizontal-sway-end: -7px;}
+
+        @keyframes rise {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0;
+            }
+            10% {
+                 opacity: 0.7;
+                 transform: scale(1);
+            }
+            50% {
+                transform: translateX(var(--horizontal-sway));
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-110vh) translateX(var(--horizontal-sway-end));
+                opacity: 0;
+            }
+        }
+        
+        .fish-elements {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .fish-emoji {
+            position: absolute;
+            font-size: 2rem;
+            animation: swim 15s infinite linear alternate;
+            opacity: 0.8;
+        }
+        .fish1 { bottom: 60px; left: -5%; animation-duration: 20s; --scaleX: scaleX(-1);}
+        .fish2 { bottom: 20px; left: -10%; animation-duration: 15s; animation-delay: 5s; font-size: 2.5rem;}
+        .fish3 { bottom: 40px; left: -8%; animation-duration: 25s; animation-delay: 10s; --scaleX: scaleX(-1); font-size: 1.8rem;}
+        .fish4 { bottom: 70px; left: -6%; animation-duration: 18s; animation-delay: 2s; font-size: 2.2rem;}
+
+
+        @keyframes swim {
+            0% { transform: translateX(0vw) translateY(0px) rotate(-5deg) var(--scaleX, scaleX(1)); }
+            25% { transform: translateX(25vw) translateY(5px) rotate(0deg) var(--scaleX, scaleX(1)); }
+            50% { transform: translateX(50vw) translateY(-5px) rotate(5deg) var(--scaleX, scaleX(1)); }
+            75% { transform: translateX(75vw) translateY(0px) rotate(0deg) var(--scaleX, scaleX(1)); }
+            100% { transform: translateX(105vw) translateY(5px) rotate(-5deg) var(--scaleX, scaleX(1)); }
+        }
+
+        .bottom-decorations {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px; /* Increased height to accommodate taller seaweed */
+            z-index: 0; 
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .bottom-decorations svg {
+            position: absolute;
+            bottom: 0px;
+            opacity: 0.45; 
+            animation: gentleSway 7s infinite ease-in-out alternate;
+            transform-origin: bottom center;
+        }
+        
+        .seaweed-svg { fill: none; } /* Seaweed uses stroke primarily */
+        .anemone-svg path, .anemone-svg circle { stroke-linecap: round; } /* Common style for anemone parts */
+
+        @keyframes gentleSway {
+            from { transform: rotate(-4deg) var(--baseTransform, scaleX(1)); }
+            to { transform: rotate(4deg) var(--baseTransform, scaleX(1)); }
+        }
+
+
+        .container {
+            background-color: rgba(0, 100, 100, 0.6);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px var(--shadow-color);
+            width: 95%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: var(--text-light);
+            font-size: 2.5em;
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 5px var(--text-dark);
+        }
+        
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 25px;
+            padding: 5px;
+        }
+        .mode-toggle label {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 0.9em;
+            color: #b0e0e6;
+            flex: 1;
+            text-align: center;
+        }
+        .mode-toggle input[type="radio"] {
+            display: none;
+        }
+        .mode-toggle input[type="radio"]:checked + label {
+            background-color: var(--accent-coral);
+            color: white;
+            font-weight: bold;
+        }
+
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #cce7e7;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 10px;
+            border: 1px solid var(--secondary-blue);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]::placeholder,
+        input[type="number"]::placeholder {
+            color: rgba(240, 248, 255, 0.5);
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-coral);
+            box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            background: var(--accent-coral);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #ff4747;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            background: var(--accent-coral);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #ff4747;
+        }
+
+
+        #paceDisplay {
+            font-size: 0.9em;
+            background-color: rgba(0,0,0,0.2);
+            padding: 6px 10px;
+            border-radius: 5px;
+            min-width: 70px;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        button#calculateButton {
+            background: linear-gradient(145deg, var(--accent-coral), #e65050);
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+            margin-top: 15px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button#calculateButton:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 5px 18px rgba(0,0,0,0.25);
+        }
+        
+        button#calculateButton:active {
+            transform: translateY(0px) scale(0.99);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+
+        .result-display {
+            margin-top: 25px;
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--text-light);
+            text-shadow: 1px 1px 3px var(--text-dark);
+            min-height: 1.2em;
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            background-color: rgba(139, 0, 0, 0.3);
+            border: 1px solid rgba(255,100,100,0.5);
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            min-height: 1.1em;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+
+         @media (min-width: 600px) {
+            body {
+                justify-content: center;
+            }
+            .container {
+                padding: 30px 40px;
+            }
+             h1 { font-size: 2.8em; }
+             .result-display { font-size: 2.5em; }
+             .fish-emoji { font-size: 2.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bubbles">
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div>
+    </div>
+
+    <div class="fish-elements">
+        <span class="fish-emoji fish1">🐠</span>
+        <span class="fish-emoji fish2">🐡</span>
+        <span class="fish-emoji fish3">🐟</span>
+        <span class="fish-emoji fish4">🐙</span>
+    </div>
+
+    <div class="bottom-decorations">
+        <!-- Seaweed 1 -->
+        <svg viewBox="0 0 30 100" class="seaweed-svg" style="width: 45px; height: 90px; left: 10%; animation-duration: 9s; --baseTransform: scaleX(1);">
+            <path d="M15 98 C 5 80, 25 70, 15 50 C 5 35, 25 25, 15 5" stroke="#3B8E88" stroke-width="5" stroke-linecap="round"/>
+            <path d="M12 95 Q 2 75, 12 55 T 12 15" stroke="#4FA49E" stroke-width="3" stroke-linecap="round" transform="translate(5,0)"/>
+        </svg>
+        <!-- Seaweed 2 -->
+        <svg viewBox="0 0 30 100" class="seaweed-svg" style="width: 35px; height: 70px; left: 25%; animation-duration: 11s; --baseTransform: scaleX(-1); bottom: -5px;">
+            <path d="M15 98 C 25 80, 5 70, 15 50 C 25 35, 5 25, 15 5" stroke="#519894" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <!-- Seaweed 3 -->
+         <svg viewBox="0 0 30 100" class="seaweed-svg" style="width: 50px; height: 100px; left: 45%; animation-duration: 10s; --baseTransform: scaleX(1); bottom: -2px;">
+            <path d="M15 98 C 5 80, 25 70, 15 50 C 5 35, 25 25, 15 5" stroke="#327a75" stroke-width="6" stroke-linecap="round"/>
+            <path d="M10 95 Q 0 75, 10 55 T 10 15" stroke="#4CA09A" stroke-width="3" stroke-linecap="round" transform="translate(8,0)"/>
+        </svg>
+
+        <!-- Anemone 1 -->
+        <svg viewBox="0 0 60 60" class="anemone-svg" style="width: 55px; height: 55px; left: 70%; animation-duration: 8s; --baseTransform: scaleX(1); bottom: 5px;">
+            <circle cx="30" cy="50" r="12" fill="#E27A5F"/>
+            <path d="M30 50 Q30 20 25 15" stroke="#F0A28D" stroke-width="6"/>
+            <path d="M30 50 Q50 40 55 25" stroke="#F0A28D" stroke-width="5"/>
+            <path d="M30 50 Q10 40 5 25" stroke="#F0A28D" stroke-width="5"/>
+            <path d="M30 50 Q20 25 15 20" stroke="#F0A28D" stroke-width="4"/>
+            <path d="M30 50 Q40 25 45 20" stroke="#F0A28D" stroke-width="4"/>
+        </svg>
+        <!-- Anemone 2 -->
+        <svg viewBox="0 0 60 60" class="anemone-svg" style="width: 65px; height: 65px; left: 85%; animation-duration: 10s; --baseTransform: scaleX(-1) rotate(10deg); bottom: 0px;">
+            <circle cx="30" cy="52" r="10" fill="#D96C56"/>
+            <path d="M30 52 Q30 15 28 10" stroke="#ECA998" stroke-width="7"/>
+            <path d="M30 52 Q55 45 58 20" stroke="#ECA998" stroke-width="6"/>
+            <path d="M30 52 Q5  45 2  20" stroke="#ECA998" stroke-width="6"/>
+            <path d="M30 52 Q15 20 10 15" stroke="#ECA998" stroke-width="5"/>
+            <path d="M30 52 Q45 20 50 15" stroke="#ECA998" stroke-width="5"/>
+        </svg>
+    </div>
+
+    <div class="container">
+        <h1>Swim Faster!</h1>
+
+        <div class="mode-toggle">
+            <input type="radio" id="modeExponential" name="calcMode" value="exponential" checked>
+            <label for="modeExponential">Pace %</label>
+            <input type="radio" id="modeLinear" name="calcMode" value="linear">
+            <label for="modeLinear">Linear Scale</label>
+        </div>
+
+        <div class="input-group">
+            <label for="time100mInput">100m Best Time (s):</label>
+            <input type="text" id="time100mInput" inputmode="decimal" placeholder="Example: 65">
+        </div>
+
+        <div class="input-group">
+            <label for="paceAdjustmentSlider">Pace Adjustment (s): <span id="paceDisplay">0.00s</span></label>
+            <div class="slider-container">
+                <input type="range" id="paceAdjustmentSlider" min="-2" max="10" value="0" step="1">
+            </div>
+            <small style="display:block; text-align:center; margin-top: 5px; font-size:0.8em; color: #b0e0e6;">Adjusted 100m pace for swim</small>
+        </div>
+        
+        <div class="input-group">
+            <label for="lengthInput">Swim Length (m):</label>
+            <input type="text" id="lengthInput" inputmode="decimal" placeholder="Example: 200">
+        </div>
+
+        <div class="input-group">
+            <label for="percentInput" id="swimEffortLabel">Swim Effort Percentage (%):</label>
+            <input type="text" id="percentInput" inputmode="decimal" placeholder="Example: 90">
+        </div>
+
+        <button id="calculateButton">Calculate!</button>
+
+        <div class="result-display" id="resultDisplay">
+            <span id="minutesText">0</span>:<span id="secondsText">00</span>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+
+    </div>
+
+    <script>
+        const time100mInput = document.getElementById('time100mInput');
+        const paceAdjustmentSlider = document.getElementById('paceAdjustmentSlider');
+        const paceDisplay = document.getElementById('paceDisplay');
+        const lengthInput = document.getElementById('lengthInput');
+        const percentInput = document.getElementById('percentInput');
+        const calculateButton = document.getElementById('calculateButton');
+        const minutesText = document.getElementById('minutesText');
+        const secondsText = document.getElementById('secondsText');
+        const errorMessage = document.getElementById('errorMessage');
+        const modeRadios = document.querySelectorAll('input[name="calcMode"]');
+        const swimEffortLabel = document.getElementById('swimEffortLabel'); 
+
+        let currentMode = 'exponential'; 
+
+        function updatePaceDisplay() {
+            const baseTime100m = parseFloat(time100mInput.value);
+            const adjustment = parseFloat(paceAdjustmentSlider.value);
+
+            if (isNaN(baseTime100m) || baseTime100m <= 0) {
+                paceDisplay.textContent = "N/A";
+                return;
+            }
+            
+            const adjustedPace = baseTime100m + adjustment;
+            paceDisplay.textContent = adjustedPace.toFixed(2) + "s";
+        }
+        
+        function updateSwimEffortLabel() { 
+            if (currentMode === 'exponential') {
+                swimEffortLabel.textContent = "Swim Effort (% of Adjusted Pace):";
+            } else { 
+                swimEffortLabel.textContent = "Swim Effort (% for Linear Scale):";
+            }
+        }
+
+        function calculateSwimTime() {
+            errorMessage.textContent = '';
+            errorMessage.classList.remove('show');
+
+            const valBaseTime100m = parseFloat(time100mInput.value);
+            const valPaceAdjustment = parseFloat(paceAdjustmentSlider.value);
+            const valLengthInput = parseFloat(lengthInput.value);
+            const valSwimPercent = parseFloat(percentInput.value); 
+
+            // Validation
+            if (isNaN(valBaseTime100m) || valBaseTime100m <= 0) {
+                showError("Please enter a valid 100m Best Time.");
+                return;
+            }
+            if (isNaN(valLengthInput) || valLengthInput <= 0) {
+                showError("Please enter a valid Swim Length."); 
+                return;
+            }
+            if (isNaN(valSwimPercent) || valSwimPercent < 0 || valSwimPercent > 200) {
+                showError("Swim Percentage must be between 0 and 200."); 
+                return;
+            }
+             if (currentMode === 'exponential' && valSwimPercent === 0) {
+                showError("Swim Percentage cannot be 0% in Pace % mode."); 
+                return;
+            }
+
+
+            const adjusted100mPace = valBaseTime100m + valPaceAdjustment;
+            if (adjusted100mPace <=0) {
+                showError("Adjusted 100m pace must be positive.");
+                return;
+            }
+
+            let targetPacePer100m;
+
+            if (currentMode === 'exponential') {
+                targetPacePer100m = adjusted100mPace / (valSwimPercent / 100);
+            } else { 
+                const linearMultiplier = 2 - (valSwimPercent / 100);
+                targetPacePer100m = adjusted100mPace * linearMultiplier;
+            }
+            
+            if (targetPacePer100m <= 0) {
+                showError("Calculated target pace is invalid (zero or negative). Check inputs.");
+                return;
+            }
+
+            const totalSwimTimeSeconds = (targetPacePer100m / 100) * valLengthInput; 
+            
+            const totalMinutes = Math.floor(totalSwimTimeSeconds / 60);
+            let remainingSeconds = Math.round(totalSwimTimeSeconds % 60);
+
+            if (remainingSeconds === 60) {
+                minutesText.textContent = (totalMinutes + 1).toString();
+                secondsText.textContent = "00";
+            } else {
+                minutesText.textContent = totalMinutes.toString();
+                secondsText.textContent = (remainingSeconds < 10) ? '0' + remainingSeconds : remainingSeconds.toString();
+            }
+        }
+        
+        function showError(message) {
+            minutesText.textContent = "0";
+            secondsText.textContent = "00";
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        // Event Listeners
+        calculateButton.addEventListener('click', calculateSwimTime);
+        
+        paceAdjustmentSlider.addEventListener('input', updatePaceDisplay);
+        time100mInput.addEventListener('input', updatePaceDisplay);
+
+        modeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                currentMode = this.value;
+                updateSwimEffortLabel(); 
+            });
+        });
+
+        // Initial setup
+        updatePaceDisplay();
+        updateSwimEffortLabel(); 
+
+    </script>
+</body>
+</html>
